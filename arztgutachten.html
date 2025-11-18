@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>VMC Medizinisches Gutachten</title>
+
+<script src="https://cdn.jsdelivr.net/npm/docx@7.7.0/build/index.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #e9e9e9;
+        padding: 35px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        background: white;
+        padding: 30px;
+        width: 650px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.25);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    label { font-weight: bold; }
+
+    input, textarea, select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #aaa;
+        border-radius: 5px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #1a4876;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #15385c;
+    }
+
+    .logo {
+        display: block;
+        margin: 0 auto 15px auto;
+        width: 130px;
+    }
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <img src="vmc_logo.png" class="logo">
+
+    <h2>VMC – Medizinisches Gutachten</h2>
+
+    <label>Patientenname:</label>
+    <input id="name" type="text">
+
+    <label>Geburtsdatum:</label>
+    <input id="geburtsdatum" type="date">
+
+    <label>Ausgestellt für:</label>
+    <select id="auswahl" onchange="toggleEigeneEingabe()">
+        <option value="Gericht">Gericht</option>
+        <option value="Polizei (PD)">Polizei (PD)</option>
+        <option value="City Hall">City Hall</option>
+        <option value="Andere">Andere (manuelle Eingabe)</option>
+    </select>
+
+    <input id="andereEingabe" type="text" style="display:none;" placeholder="Für wen / was genau">
+
+    <label>Diagnose:</label>
+    <textarea id="diagnose" rows="3"></textarea>
+
+    <label>Medizinisches Fazit:</label>
+    <textarea id="fazit" rows="4"></textarea>
+
+    <label>Ersteller des Gutachtens:</label>
+    <input id="ersteller" type="text">
+
+    <label>Erstellungsdatum:</label>
+    <input id="datum" type="date">
+
+    <label>Uhrzeit:</label>
+    <input id="uhrzeit" type="time">
+
+    <button onclick="downloadDoc()">Medizinisches Gutachten herunterladen</button>
+</div>
+
+
+<script>
+function toggleEigeneEingabe() {
+    const auswahl = document.getElementById("auswahl").value;
+    const andere = document.getElementById("andereEingabe");
+
+    if (auswahl === "Andere") {
+        andere.style.display = "block";
+    } else {
+        andere.style.display = "none";
+    }
+}
+
+async function downloadDoc() {
+
+    const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
+
+    let name = document.getElementById("name").value;
+    let geburtsdatum = document.getElementById("geburtsdatum").value;
+    let auswahl = document.getElementById("auswahl").value;
+    let andere = document.getElementById("andereEingabe").value;
+    let diagnose = document.getElementById("diagnose").value;
+    let fazit = document.getElementById("fazit").value;
+    let ersteller = document.getElementById("ersteller").value;
+    let datum = document.getElementById("datum").value;
+    let uhrzeit = document.getElementById("uhrzeit").value;
+
+    if (!name || !ersteller) {
+        alert("Bitte mindestens Name und Ersteller ausfüllen!");
+        return;
+    }
+
+    // Korrekte Weiterleitungsstelle
+    let empfaenger = auswahl === "Andere" ? andere : auswahl;
+
+    const doc = new Document({
+        sections: [{
+            properties: {},
+            children: [
+
+                new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                        new TextRun({ text: "VMC – Medizinisches Gutachten", bold: true, size: 36 })
+                    ]
+                }),
+
+                new Paragraph(" "),
+
+                new Paragraph(`Patient: ${name}`),
+                new Paragraph(`Geburtsdatum: ${geburtsdatum}`),
+                new Paragraph(`Ausgestellt für: ${empfaenger}`),
+
+                new Paragraph(" "),
+
+                new Paragraph({ text: "Diagnose:", bold: true, size: 28 }),
+                new Paragraph({ text: diagnose, size: 26 }),
+
+                new Paragraph(" "),
+
+                new Paragraph({ text: "Medizinisches Fazit:", bold: true, size: 28 }),
+                new Paragraph({ text: fazit, size: 26 }),
+
+                new Paragraph(" "),
+
+                new Paragraph({ text: "Offizielle medizinische Beurteilung nach VMC-Standard.", size: 26 }),
+
+                new Paragraph(" "),
+
+                new Paragraph(`Ersteller: ${ersteller}`),
+                new Paragraph(`Datum: ${datum}   Uhrzeit: ${uhrzeit}`)
+            ]
+        }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const fileName = `${name} – VMC Medizinisches Gutachten.docx`;
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+}
+</script>
+
+</body>
+</html>

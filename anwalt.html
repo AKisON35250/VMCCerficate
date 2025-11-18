@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>VMC Anwalt-Begutachtung</title>
+
+<script src="https://cdn.jsdelivr.net/npm/docx@7.7.0/build/index.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #e9e9e9;
+        padding: 30px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        background: white;
+        padding: 30px;
+        width: 680px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0,0,0,0.25);
+    }
+
+    label { font-weight: bold; }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #999;
+        border-radius: 5px;
+        font-size: 15px;
+    }
+
+    .checkbox-group {
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    button {
+        background: #1a4876;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 6px;
+        font-size: 18px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .logo-preview {
+        width: 140px;
+        display: block;
+        margin: 0 auto 20px auto;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <img src="vmc_logo.png" class="logo-preview" onerror="this.style.display='none'">
+
+    <h2 style="text-align:center; margin-bottom:20px; font-size:28px;">
+        VMC Rechtsfähigkeits- / Anwaltstauglichkeits-Begutachtung
+    </h2>
+
+    <label>Name:</label>
+    <input id="name">
+
+    <label>SV-Nummer:</label>
+    <input id="svn">
+
+    <label>Geburtsdatum:</label>
+    <input id="geb" type="date">
+
+    <label>Aktennummer:</label>
+    <input id="akten">
+
+    <label>Erstellungsdatum:</label>
+    <input id="datum" type="date">
+
+    <label>Uhrzeit:</label>
+    <input id="uhrzeit" type="time">
+
+    <label>Gutachter / Durchgeführt von:</label>
+    <input id="gutachter" placeholder="Name des Gutachters">
+
+    <label>Beurteilung:</label>
+    <textarea id="beurteilung" rows="3"></textarea>
+
+    <label>Bemerkungen:</label>
+    <textarea id="bemerkungen" rows="4"></textarea>
+
+    <div class="checkbox-group">
+        <label><input type="radio" name="result" value="Bestanden"> Anwalt bestanden</label><br>
+        <label><input type="radio" name="result" value="Nicht bestanden"> Anwalt nicht bestanden</label>
+    </div>
+
+    <button onclick="makeDoc()">Zertifikat erstellen</button>
+</div>
+
+
+<script>
+async function makeDoc() {
+
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, ImageRun } = window.docx;
+
+    // Eingaben einlesen
+    const name = document.getElementById("name").value;
+    const svn = document.getElementById("svn").value;
+    const geb = document.getElementById("geb").value;
+    const akten = document.getElementById("akten").value;
+    const datum = document.getElementById("datum").value;
+    const uhrzeit = document.getElementById("uhrzeit").value;
+    const gutachter = document.getElementById("gutachter").value;
+    const beurteilung = document.getElementById("beurteilung").value;
+    const bemerkungen = document.getElementById("bemerkungen").value;
+
+    const result = document.querySelector("input[name='result']:checked");
+
+    if (!name) { alert("Bitte Name eingeben!"); return; }
+    if (!result) { alert("Bitte auswählen, ob bestanden oder nicht!"); return; }
+
+    const resultText = result.value;
+
+    // Logo laden
+    let logoArr = null;
+    try {
+        const logoBlob = await fetch("vmc_logo.png").then(r => r.blob());
+        logoArr = await logoBlob.arrayBuffer();
+    } catch (e) {}
+
+    let docChildren = [];
+
+    if (logoArr) {
+        docChildren.push(
+            new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                    new ImageRun({
+                        data: logoArr,
+                        transformation: { width: 140, height: 140 }
+                    })
+                ]
+            })
+        );
+    }
+
+    // TITEL
+    docChildren.push(
+        new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 350 },
+            children: [
+                new TextRun({
+                    text: "Rechtsfähigkeits- / Anwaltstauglichkeits-Begutachtung",
+                    bold: true,
+                    size: 56
+                })
+            ]
+        })
+    );
+
+    // Personendaten
+    docChildren.push(
+        new Paragraph({ text: "Personendaten", heading: HeadingLevel.HEADING_2 }),
+        new Paragraph({ children: [ new TextRun({ text: `Name: ${name}`, size: 32 }) ]}),
+        new Paragraph({ children: [ new TextRun({ text: `SV-Nummer: ${svn}`, size: 32 }) ]}),
+        new Paragraph({ children: [ new TextRun({ text: `Geburtsdatum: ${geb}`, size: 32 }) ]}),
+        new Paragraph({ children: [ new TextRun({ text: `Aktennummer: ${akten}`, size: 32 }) ]}),
+        new Paragraph(" ")
+    );
+
+    // Erstellungsinfos
+    docChildren.push(
+        new Paragraph({ text: "Erstellungsdetails", heading: HeadingLevel.HEADING_2 }),
+        new Paragraph({ children: [ new TextRun({ text: `Datum: ${datum}`, size: 32 }) ]}),
+        new Paragraph({ children: [ new TextRun({ text: `Uhrzeit: ${uhrzeit}`, size: 32 }) ]}),
+        new Paragraph({ children: [ new TextRun({ text: `Gutachter: ${gutachter}`, size: 32 }) ]}),
+        new Paragraph(" ")
+    );
+
+    // Beurteilung
+    docChildren.push(
+        new Paragraph({ text: "Beurteilung", heading: HeadingLevel.HEADING_2 }),
+        new Paragraph({ children: [ new TextRun({ text: beurteilung, size: 30 }) ], spacing: { after: 250 } })
+    );
+
+    // Bemerkungen
+    docChildren.push(
+        new Paragraph({ text: "Bemerkungen", heading: HeadingLevel.HEADING_2 }),
+        new Paragraph({ children: [ new TextRun({ text: bemerkungen, size: 30 }) ]})
+    );
+
+    // WICHTIG: Ergebnis (Bestanden / Nicht bestanden)
+    docChildren.push(
+        new Paragraph(" "),
+        new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+                new TextRun({
+                    text: `ERGEBNIS DER ANWALTSPRÜFUNG: ${resultText}`,
+                    bold: true,
+                    size: 46
+                })
+            ]
+        })
+    );
+
+    // Fußtext
+    docChildren.push(
+        new Paragraph(" "),
+        new Paragraph({
+            alignment: AlignmentType.LEFT,
+            children: [
+                new TextRun({
+                    text: "Offizielle VMC-Begutachtung zur juristischen Tauglichkeit.",
+                    size: 30
+                })
+            ]
+        })
+    );
+
+    const doc = new Document({
+        sections: [
+            {
+                properties: {
+                    page: {
+                        margin: { top: 800, bottom: 800, left: 1000, right: 1000 }
+                    }
+                },
+                children: docChildren
+            }
+        ]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const fileName = `${name} – Anwalt Begutachtung.docx`;
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    a.click();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VMC – Zertifikats-Portal</title>
+  <style>
+    :root{
+      --accent:#1f3b4d;
+      --accent-light:#5fa6b6;
+      --bg:#f0f4f5;
+      --card:#ffffff;
+      --radius:14px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    body{
+      margin:0;
+      background:var(--bg);
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+      color:#111;
+    }
+    header{
+      background:white;
+      padding:18px 24px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      border-bottom:1px solid #d5e3e6;
+    }
+    header img{
+      max-height:80px;
+    }
+    main{
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:40px 20px;
+    }
+    .nav-box{
+      background:var(--card);
+      padding:32px;
+      border-radius:var(--radius);
+      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+      width:100%;
+      max-width:500px;
+      text-align:center;
+    }
+    h1{
+      margin-top:0;
+      color:var(--accent);
+      font-size:26px;
+      margin-bottom:20px;
+    }
+    .menu{
+      display:grid;
+      gap:12px;
+      margin-top:20px;
+    }
+    .menu a{
+      display:block;
+      padding:14px;
+      background:var(--accent);
+      color:white;
+      border-radius:var(--radius);
+      text-decoration:none;
+      font-size:17px;
+      font-weight:600;
+      transition:0.2s;
+    }
+    .menu a:hover{
+      background:var(--accent-light);
+    }
+    footer{
+      text-align:center;
+      padding:20px 10px;
+      font-size:13px;
+      color:#667;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="vmc_logo.png" alt="Vespucci Medical Center Logo">
+</header>
+
+<main>
+  <div class="nav-box">
+    <h1>VMC – Zertifikats-Portal</h1>
+    <p>Wähle aus, welches Gutachten oder Zertifikat du erstellen möchtest.</p>
+
+    <div class="menu">
+      <a href="waffenschein.html">🔫 Waffenschein-Begutachtung</a>
+      <a href="anwalt.html">⚖️ Anwalt-Lizenz Begutachtung</a>
+      <a href="arztgutachten.html">🧪 Medizinisches Gutachten</a>
+      <a href="sonstige.html">📄 Sonstige Zertifikate</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Vespucci Medical Center – Zertifikats-System © 2025
+</footer>
+
+</body>
+</html>
